@@ -1,1 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: simple-login-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  tls:
+    - hosts:                                    # still required for cert‑manager
+        - "<ANY_HOSTNAME>"                     # placeholder, won't affect LB address
+      secretName: simple-login-tls
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: simple-login-service
+                port:
+                  number: 80
 
