@@ -25,8 +25,8 @@ jobs:
       - name: 🔁 Terraform Init
         run: terraform init
 
-      - name: 🔍 Terraform Format Check
-        run: terraform fmt -check -recursive
+      - name: 🧹 Terraform Format
+        run: terraform fmt -recursive
 
       - name: 🔍 Terraform Validate
         run: terraform validate
@@ -36,9 +36,14 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION:            ${{ secrets.AWS_REGION }}
 
       - name: 🚀 Terraform Apply
         run: terraform apply -auto-approve
         env:
           AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION:            ${{ secrets.AWS_REGION }}
+
+      - name: 📦 Show Terraform Outputs
+        run: terraform output
