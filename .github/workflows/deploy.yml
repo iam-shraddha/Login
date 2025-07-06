@@ -2,41 +2,66 @@ name: App CI/CD
 
 on:
   push:
-    branches: [ main ]
-    paths-ignore: [ 'terraform/**' ]
-
-env:
-  IMAGE_TAG: ${{ github.sha }}
-  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+    paths:
+      - 'src/**'
+      - 'pom.xml'
+      - 'Dockerfile'
+      - '.github/workflows/deploy.yml'
 
 jobs:
-  build-deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
+
+    env:
+      ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+      AWS_REGION:     ${{ secrets.AWS_REGION }}
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+      EKS_CLUSTER_NAME: ${{ secrets.EKS_CLUSTER_NAME }}
+      IMAGE_TAG: ${{ github.sha }}
+      ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3
-        with: { java-version: '17' }
-      - name: Build JAR
-        run: mvn clean package -DskipTests
-      - uses: aws-actions/configure-aws-credentials@v4
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'              # ✅ Required input
+          java-version: '17'
+          java-package: jdk
+          check-latest: false
+          server-id: github
+          server-username: GITHUB_ACTOR
+          server-password: ${{ secrets.GITHUB_TOKEN }}
+          overwrite-settings: true
+
+      - name: Build Java app with Maven
+        run: mvn clean package --no-transfer-progress
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region:            ${{ secrets.AWS_REGION }}
-      - name: Login to ECR
-        run: |
-          aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_REGISTRY
-      - name: Build & Push Image
-        run: |
-          docker build -t $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
+
+      - name: Login to Amazon ECR
+        run: aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_REGISTRY
+
+      - name: Build Docker image
+        run: docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
+
+      - name: Tag Docker image
+        run: docker tag $ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Push Docker image to ECR
+        run: docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
       - name: Update kubeconfig
-        run: aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name ${{ secrets.EKS_CLUSTER_NAME }}
+        run: aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_REGION
+
       - name: Deploy to EKS
         run: |
-          kubectl apply -f deployment.yaml
-          kubectl apply -f service.yaml
-          kubectl apply -f ingress.yaml
           kubectl set image deployment/simple-login-deployment \
-            simple-login=$ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
-
+            simple-login=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
