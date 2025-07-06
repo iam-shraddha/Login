@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: simple-login
-          image: YOUR_ACCOUNT_ID.dkr.ecr.YOUR_REGION.amazonaws.com/simple-login:latest
+          image: 257394465785.dkr.ecr.ap-south-1.amazonaws.com/simple-login:latest
           ports:
             - containerPort: 8080
 
