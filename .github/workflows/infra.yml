@@ -3,11 +3,10 @@ name: Terraform Infra
 on:
   push:
     paths:
-      - 'terraform/**'  # Run when any file in terraform/ is changed
+      - 'terraform/**'
 
 jobs:
   terraform:
-    name: Apply Terraform Infrastructure
     runs-on: ubuntu-latest
 
     defaults:
@@ -23,20 +22,23 @@ jobs:
         with:
           terraform_version: 1.6.0
 
+      - name: 🔁 Terraform Init
+        run: terraform init
+
       - name: 🔍 Terraform Format Check
         run: terraform fmt -check -recursive
 
       - name: 🔍 Terraform Validate
         run: terraform validate
 
-      - name: 🔍 Terraform Plan
+      - name: 🧠 Terraform Plan
         run: terraform plan
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: 🚀 Terraform Apply
         run: terraform apply -auto-approve
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
