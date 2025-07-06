@@ -1,1 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simple-login-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: simple-login
+  template:
+    metadata:
+      labels:
+        app: simple-login
+    spec:
+      containers:
+        - name: simple-login
+          image: YOUR_ACCOUNT_ID.dkr.ecr.YOUR_REGION.amazonaws.com/simple-login:latest
+          ports:
+            - containerPort: 8080
 
