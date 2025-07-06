@@ -22,11 +22,17 @@ jobs:
         with:
           terraform_version: 1.6.0
 
-      - name: 🔁 Terraform Init
-        run: terraform init
+      - name: 🔁 Terraform Init (for format and validate)
+        run: terraform init -backend=false
 
       - name: 🔍 Terraform Format Check
         run: terraform fmt -check -recursive
+
+      - name: 🔍 Terraform Validate
+        run: terraform validate
+
+      - name: 🔁 Terraform Init (real init for plan/apply)
+        run: terraform init
 
       - name: 🧠 Terraform Plan
         run: terraform plan
