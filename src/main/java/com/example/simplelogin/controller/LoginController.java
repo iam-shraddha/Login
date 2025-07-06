@@ -1,4 +1,3 @@
-# src/main/java/com/example/simplelogin/controller/LoginController.java
 package com.example.simplelogin.controller;
 import org.springframework.web.bind.annotation.*;
 
