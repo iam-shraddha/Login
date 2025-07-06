@@ -26,6 +26,10 @@ jobs:
         run: terraform fmt -check -recursive
         working-directory: terraform
 
+      - name: ✅ Re-init Before Validate (Ensures modules are installed)
+        run: terraform init
+        working-directory: terraform
+
       - name: 🔍 Terraform Validate
         run: terraform validate
         working-directory: terraform
@@ -36,7 +40,7 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION:            ap-south-1
+          AWS_REGION: ap-south-1
 
       - name: 🚀 Terraform Apply
         run: terraform apply -auto-approve
@@ -44,4 +48,4 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION:            ap-south-1
+          AWS_REGION: ap-south-1
