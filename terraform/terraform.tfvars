@@ -1,4 +1,4 @@
 region       = "ap-south-1"
-cluster_name = "simple-login-eks"
-ecr_repo     = "simple-login-repo"
+cluster_name = "simple-login-c1"
+ecr_repo     = "simple-login-r1"
 
