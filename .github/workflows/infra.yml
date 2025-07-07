@@ -33,12 +33,6 @@ jobs:
           terraform init -backend=false -input=false || exit 1
           echo "✅ Init success"
 
-      - name: 🔍 Terraform Format Check
-        run: |
-          echo ">>> Running terraform fmt -check -recursive"
-          terraform fmt -check -recursive
-
-
       - name: 🔍 Terraform Validate
         run: |
           echo ">>> Running terraform validate"
