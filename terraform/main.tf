@@ -41,23 +41,23 @@ module "eks" {
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
 
-  eks_managed_node_groups = {
-    default = {
-      desired_capacity = 2
-      min_capacity     = 1
-      max_capacity     = 3
-      instance_types   = ["t3.medium"]
+ eks_managed_node_groups = {
+  default = {
+    desired_capacity = 2
+    min_capacity     = 1
+    max_capacity     = 3
+    instance_types   = ["t3.medium"]
 
-      create_iam_role = true
+    create_iam_role = true
 
-      iam_role_additional_policies = [
-        "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy",
-        "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy",
-        "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-      ]
+    iam_role_additional_policies = {
+      eks_worker      = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+      eks_cni         = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+      ecr_readonly    = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
     }
   }
 }
+
 
 resource "aws_ecr_repository" "app" {
   name = var.ecr_repo
