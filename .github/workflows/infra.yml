@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'terraform/**'
+      - '.github/workflows/infra.yml'  # include workflow changes as trigger
 
 jobs:
   terraform:
@@ -15,6 +16,7 @@ jobs:
 
     env:
       ACTIONS_STEP_DEBUG: true
+      TF_IN_AUTOMATION: true
 
     steps:
       - name: ⬇️ Checkout Code
@@ -27,23 +29,24 @@ jobs:
 
       - name: 🔁 Terraform Init (for format and validate)
         run: |
-          echo ">>> Running terraform init -backend=false"
-          terraform init -backend=false
+          echo ">>> Running terraform init (no backend)"
+          terraform init -backend=false -input=false || exit 1
+          echo "✅ Init success"
 
       - name: 🔍 Terraform Format Check
         run: |
           echo ">>> Running terraform fmt check"
-          terraform fmt -check -recursive
+          terraform fmt -check -recursive || exit 1
 
       - name: 🔍 Terraform Validate
         run: |
           echo ">>> Running terraform validate"
-          terraform validate
+          terraform validate || exit 1
 
-      - name: 🔁 Terraform Init (real init for plan/apply)
+      - name: 🔁 Terraform Init (for plan/apply)
         run: |
-          echo ">>> Running full terraform init"
-          terraform init
+          echo ">>> Running terraform init"
+          terraform init -input=false || exit 1
 
       - name: 🧠 Terraform Plan
         run: |
