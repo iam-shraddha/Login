@@ -12,8 +12,12 @@ provider "aws" {
   region = var.region
 }
 
+# Fetch availability zones in the region
 data "aws_availability_zones" "available" {}
 
+# -----------------------
+# VPC Module
+# -----------------------
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "5.1.2"
@@ -31,6 +35,9 @@ module "vpc" {
   enable_dns_support   = true
 }
 
+# -----------------------
+# EKS Module
+# -----------------------
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "20.8.4"
@@ -41,24 +48,27 @@ module "eks" {
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
 
- eks_managed_node_groups = {
-  default = {
-    desired_capacity = 2
-    min_capacity     = 1
-    max_capacity     = 3
-    instance_types   = ["t3.medium"]
+  eks_managed_node_groups = {
+    default = {
+      desired_capacity = 2
+      min_capacity     = 1
+      max_capacity     = 3
+      instance_types   = ["t3.medium"]
 
-    create_iam_role = true
+      create_iam_role = true
 
-    iam_role_additional_policies = {
-      eks_worker      = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
-      eks_cni         = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
-      ecr_readonly    = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+      iam_role_additional_policies = {
+        eks_worker   = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+        eks_cni      = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+        ecr_readonly = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+      }
     }
   }
 }
 
-
+# -----------------------
+# ECR Repository
+# -----------------------
 resource "aws_ecr_repository" "app" {
   name = var.ecr_repo
 }
