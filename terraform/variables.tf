@@ -1,11 +1,14 @@
 variable "region" {
-  type = string
+  type    = string
+  default = "ap-south-1"
 }
 
 variable "cluster_name" {
-  type = string
+  type    = string
+  default = "simple-login-c1"
 }
 
 variable "ecr_repo" {
-  type = string
+  type    = string
+  default = "simple-login-r1"
 }
