@@ -13,6 +13,9 @@ jobs:
       run:
         working-directory: terraform
 
+    env:
+      ACTIONS_STEP_DEBUG: true
+
     steps:
       - name: ⬇️ Checkout Code
         uses: actions/checkout@v3
@@ -23,25 +26,37 @@ jobs:
           terraform_version: 1.6.0
 
       - name: 🔁 Terraform Init (for format and validate)
-        run: terraform init -backend=false
+        run: |
+          echo ">>> Running terraform init -backend=false"
+          terraform init -backend=false
 
       - name: 🔍 Terraform Format Check
-        run: terraform fmt -check -recursive
+        run: |
+          echo ">>> Running terraform fmt check"
+          terraform fmt -check -recursive
 
       - name: 🔍 Terraform Validate
-        run: terraform validate
+        run: |
+          echo ">>> Running terraform validate"
+          terraform validate
 
       - name: 🔁 Terraform Init (real init for plan/apply)
-        run: terraform init
+        run: |
+          echo ">>> Running full terraform init"
+          terraform init
 
       - name: 🧠 Terraform Plan
-        run: terraform plan
+        run: |
+          echo ">>> Running terraform plan"
+          terraform plan
         env:
           AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: 🚀 Terraform Apply
-        run: terraform apply -auto-approve
+        run: |
+          echo ">>> Running terraform apply"
+          terraform apply -auto-approve
         env:
           AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
