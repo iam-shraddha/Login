@@ -16,7 +16,7 @@ data "aws_availability_zones" "available" {}
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "6.0.1"
+  version =  "5.1.2" 
 
   name = "${var.cluster_name}-vpc"
   cidr = "10.0.0.0/16"
@@ -31,7 +31,7 @@ module "vpc" {
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "20.37.1"
+  version = "20.8.4"
 
   cluster_name    = var.cluster_name
   cluster_version = "1.27"
